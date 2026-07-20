@@ -1,0 +1,10 @@
+[package]
+name = "coolify-backups"
+version = "0.1.0"
+edition = "2024"
+description = "A small script to backup the data in some of my services hosted with Coolify."
+license = "MIT"
+repository = "https://git.lab.itsnova.sh/novaotp/coolify-backups"
+publish = ["forgejo"]
+
+[dependencies]
