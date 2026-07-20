@@ -1,2 +1,6 @@
 # build
 /target
+
+# environment
+*.env*
+!.env.example

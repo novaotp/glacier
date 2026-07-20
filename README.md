@@ -10,7 +10,23 @@ A small script to backup the data in some of my services hosted with Coolify.
 
 ### Development
 
-1. Run the tool.
+1. Create an `.env` file based on `.env.example`.
+
+    > You only need to modify the services section.
+
+    ```sh
+    cp .env.example .env
+    ```
+
+2. Run the `compose.yaml` for a local S3.
+
+    > The UI is located at https://localhost:9191.
+
+    ```sh
+    sudo docker compose up --build
+    ```
+
+3. Run the tool.
 
     ```sh
     cargo run

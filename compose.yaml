@@ -1,0 +1,9 @@
+services:
+  s3mock:
+    image: adobe/s3mock:latest
+    env_file: .env
+    environment:
+      - COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS=$S3_BUCKET
+    ports:
+      - 9090:9090
+      - 9191:9191
