@@ -1,5 +1,10 @@
 use chrono::Local;
-use coolify_backups::{config::Config, exporter::Exporter as _, outline::OutlineExporter, s3::S3};
+use coolify_backups::{
+    config::Config,
+    exporter::Exporter as _,
+    outline::OutlineExporter,
+    storage::{ArchiveDescriptor, Storage as _, s3::S3Storage},
+};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -18,30 +23,21 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let s3 = S3::new(config.s3.clone()).await;
+    let s3 = S3Storage::new(config.s3.clone()).await;
     let exporters = [OutlineExporter::new(config.outline)?];
+
+    let date = Local::now().format("%Y%m%d_%Hh%M").to_string();
 
     for exporter in exporters {
         let data = exporter.export().await?;
 
         println!("Putting {} backup in S3...", exporter.name());
 
-        s3.put(
-            config.s3.bucket.clone(),
-            generate_path(exporter.name()),
-            data,
-        )
-        .await?;
+        s3.upload(ArchiveDescriptor::new(&date, exporter.name()), data)
+            .await?;
     }
 
     println!("Completed backups");
 
     Ok(())
-}
-
-/// Generates a path for the given service.
-fn generate_path(name: &str) -> String {
-    let date = Local::now().format("%Y%m%d").to_string();
-
-    format!("data/{name}/backups/automatic/{date}_{name}_backup.zip")
 }
