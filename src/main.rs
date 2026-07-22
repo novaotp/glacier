@@ -1,27 +1,25 @@
 use chrono::Local;
-use coolify_backups::{
-    environment::Environment, exporter::Exporter, outline::OutlineExporter, s3::S3,
-};
+use coolify_backups::{config::Config, exporter::Exporter as _, outline::OutlineExporter, s3::S3};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv()?;
 
-    println!("Loading environment...");
-    let environment = Environment::load()?;
+    println!("Loading configuration...");
+    let config = Config::new()?;
 
-    let s3 = S3::new(
-        environment.s3.region,
-        environment.s3.endpoint,
-        environment.s3.access_key,
-        environment.s3.secret_key,
-    )
-    .await;
+    if !config.s3.enabled {
+        println!("No storage enabled. Aborting...");
+        return Ok(());
+    }
 
-    let exporters = [OutlineExporter::new(
-        environment.outline.api_url,
-        environment.outline.api_key,
-    )?];
+    if !config.outline.enabled {
+        println!("No services to export enabled. Aborting...");
+        return Ok(());
+    }
+
+    let s3 = S3::new(config.s3.clone()).await;
+    let exporters = [OutlineExporter::new(config.outline)?];
 
     for exporter in exporters {
         let data = exporter.export().await?;
@@ -29,7 +27,7 @@ async fn main() -> anyhow::Result<()> {
         println!("Putting {} backup in S3...", exporter.name());
 
         s3.put(
-            environment.s3.bucket.clone(),
+            config.s3.bucket.clone(),
             generate_path(exporter.name()),
             data,
         )

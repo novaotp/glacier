@@ -6,14 +6,15 @@ use reqwest::{Client, StatusCode, header};
 use tokio::time;
 
 use crate::{
+    config::ConfigOutline,
     exporter::Exporter,
     outline::api::{ApiResponse, ExportCollections, FileOperation, FileOperationState},
 };
 
 /// The exporter for the Outline service.
 pub struct OutlineExporter {
-    api_url: String,
     client: Client,
+    url: String,
 }
 
 impl OutlineExporter {
@@ -22,17 +23,20 @@ impl OutlineExporter {
     /// # Errors
     ///
     /// If the reqwest [Client] cannot be built.
-    pub fn new(api_url: String, api_key: String) -> anyhow::Result<Self> {
+    pub fn new(config: ConfigOutline) -> anyhow::Result<Self> {
         let mut headers = header::HeaderMap::new();
 
-        let mut auth_value = header::HeaderValue::try_from(&format!("Bearer {}", api_key))?;
+        let mut auth_value = header::HeaderValue::try_from(&format!("Bearer {}", config.api_key))?;
         auth_value.set_sensitive(true);
 
         headers.insert(header::AUTHORIZATION, auth_value);
 
         let client = Client::builder().default_headers(headers).build()?;
 
-        Ok(Self { api_url, client })
+        Ok(Self {
+            client,
+            url: config.url,
+        })
     }
 
     /// Internal helper to execute authenticated requests.
@@ -43,7 +47,7 @@ impl OutlineExporter {
     ) -> anyhow::Result<T> {
         let response = self
             .client
-            .post(format!("{}/api/{}", self.api_url, path))
+            .post(format!("{}/api/{}", self.url, path))
             .json(&body)
             .send()
             .await?;
@@ -125,7 +129,7 @@ impl Exporter for OutlineExporter {
 
         let response = self
             .client
-            .get(format!("{}/api/fileOperations.redirect", self.api_url))
+            .get(format!("{}/api/fileOperations.redirect", self.url))
             .query(&[("id", &file_operation.id)])
             .send()
             .await?;

@@ -7,24 +7,22 @@ use aws_sdk_s3::{
 };
 use bytes::Bytes;
 
+use crate::config::ConfigS3;
+
 /// A wrapper client for interacting with S3-compatible storage.
 pub struct S3(Client);
 
 impl S3 {
     /// Initializes a new S3 client.
-    pub async fn new(
-        region: String,
-        endpoint: String,
-        access_key: String,
-        secret_key: String,
-    ) -> Self {
-        let credentials = Credentials::new(&access_key, &secret_key, None, None, "static");
+    pub async fn new(config: ConfigS3) -> Self {
+        let credentials =
+            Credentials::new(&config.access_key, &config.secret_key, None, None, "static");
         let sdk_config = aws_config::load_defaults(BehaviorVersion::latest()).await;
 
         let mut builder = Builder::from(&sdk_config)
-            .region(Region::new(region))
+            .region(Region::new(config.region))
             .credentials_provider(credentials)
-            .endpoint_url(endpoint);
+            .endpoint_url(config.endpoint);
 
         #[cfg(debug_assertions)]
         {
