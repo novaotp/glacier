@@ -7,18 +7,20 @@ use tokio::time;
 
 use crate::{
     config::ConfigOutline,
-    exporter::Exporter,
-    outline::api::{ApiResponse, ExportCollections, FileOperation, FileOperationState},
+    service::{
+        Service,
+        outline::api::{ApiResponse, ExportCollections, FileOperation, FileOperationState},
+    },
 };
 
-/// The exporter for the Outline service.
-pub struct OutlineExporter {
+/// The Outline service.
+pub struct OutlineService {
     client: Client,
     url: String,
 }
 
-impl OutlineExporter {
-    /// Creates a new `OutlineExporter`.
+impl OutlineService {
+    /// Creates a new `OutlineService`.
     ///
     /// # Errors
     ///
@@ -98,7 +100,7 @@ impl OutlineExporter {
 }
 
 #[async_trait]
-impl Exporter for OutlineExporter {
+impl Service for OutlineService {
     fn name(&self) -> &str {
         "outline"
     }

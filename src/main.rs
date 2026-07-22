@@ -1,8 +1,7 @@
 use chrono::Local;
 use coolify_backups::{
     config::Config,
-    exporter::Exporter as _,
-    outline::OutlineExporter,
+    service::{Service as _, outline::OutlineService},
     storage::{ArchiveDescriptor, Storage, local::LocalStorage, s3::S3Storage},
 };
 
@@ -32,22 +31,18 @@ async fn main() -> anyhow::Result<()> {
         storages.push(Box::new(S3Storage::new(config.s3).await));
     }
 
-    let exporters = [OutlineExporter::new(config.outline)?];
+    let services = [OutlineService::new(config.outline)?];
 
     let date = Local::now().format("%Y%m%d_%Hh%M").to_string();
 
-    for exporter in exporters {
-        let data = exporter.export().await?;
+    for service in &services {
+        let data = service.export().await?;
 
         for storage in &storages {
-            println!(
-                "Putting {} backup in {}...",
-                exporter.name(),
-                storage.name()
-            );
+            println!("Putting {} backup in {}...", service.name(), storage.name());
 
             storage
-                .upload(ArchiveDescriptor::new(&date, exporter.name()), data.clone())
+                .upload(ArchiveDescriptor::new(&date, service.name()), data.clone())
                 .await?;
         }
     }
