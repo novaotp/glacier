@@ -2,8 +2,15 @@ use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Config {
+    pub local: ConfigLocal,
     pub s3: ConfigS3,
     pub outline: ConfigOutline,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct ConfigLocal {
+    pub enabled: bool,
+    pub output_path: String,
 }
 
 #[derive(Clone, Debug, Deserialize)]

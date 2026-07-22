@@ -3,7 +3,7 @@ use coolify_backups::{
     config::Config,
     exporter::Exporter as _,
     outline::OutlineExporter,
-    storage::{ArchiveDescriptor, Storage as _, s3::S3Storage},
+    storage::{ArchiveDescriptor, Storage, local::LocalStorage, s3::S3Storage},
 };
 
 #[tokio::main]
@@ -13,7 +13,7 @@ async fn main() -> anyhow::Result<()> {
     println!("Loading configuration...");
     let config = Config::new()?;
 
-    if !config.s3.enabled {
+    if !config.local.enabled && !config.s3.enabled {
         println!("No storage enabled. Aborting...");
         return Ok(());
     }
@@ -23,7 +23,15 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let s3 = S3Storage::new(config.s3.clone()).await;
+    let mut storages: Vec<Box<dyn Storage>> = vec![];
+    if config.local.enabled {
+        storages.push(Box::new(LocalStorage::new(config.local).await?));
+    }
+
+    if config.s3.enabled {
+        storages.push(Box::new(S3Storage::new(config.s3).await));
+    }
+
     let exporters = [OutlineExporter::new(config.outline)?];
 
     let date = Local::now().format("%Y%m%d_%Hh%M").to_string();
@@ -31,10 +39,17 @@ async fn main() -> anyhow::Result<()> {
     for exporter in exporters {
         let data = exporter.export().await?;
 
-        println!("Putting {} backup in S3...", exporter.name());
+        for storage in &storages {
+            println!(
+                "Putting {} backup in {}...",
+                exporter.name(),
+                storage.name()
+            );
 
-        s3.upload(ArchiveDescriptor::new(&date, exporter.name()), data)
-            .await?;
+            storage
+                .upload(ArchiveDescriptor::new(&date, exporter.name()), data.clone())
+                .await?;
+        }
     }
 
     println!("Completed backups");
