@@ -41,8 +41,11 @@ impl Storage for LocalStorage {
         data_path: &Path,
     ) -> anyhow::Result<()> {
         let path = format!(
-            "{}/{}_{}_backup.zip",
-            self.output_path, archive_descriptor.date, archive_descriptor.name
+            "{}/{}_{}_backup.{}",
+            self.output_path,
+            archive_descriptor.date,
+            archive_descriptor.name,
+            archive_descriptor.file_extension
         );
 
         fs::copy(data_path, path).await?;

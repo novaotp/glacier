@@ -30,14 +30,21 @@ pub struct ArchiveDescriptor {
     pub date: String,
     /// The name of the service.
     pub name: String,
+    /// The extension of the archive.
+    pub file_extension: String,
 }
 
 impl ArchiveDescriptor {
     /// Creates a new archive descriptor.
-    pub fn new(date: impl Into<String>, name: impl Into<String>) -> Self {
+    pub fn new(
+        date: impl Into<String>,
+        name: impl Into<String>,
+        file_extension: impl Into<String>,
+    ) -> Self {
         Self {
             date: date.into(),
             name: name.into(),
+            file_extension: file_extension.into(),
         }
     }
 }

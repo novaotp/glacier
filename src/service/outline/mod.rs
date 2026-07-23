@@ -108,6 +108,10 @@ impl Service for OutlineService {
         "outline"
     }
 
+    fn file_extension(&self) -> &str {
+        "zip"
+    }
+
     async fn export(&self) -> anyhow::Result<NamedTempFile> {
         let mut file_operation = self.export_collections().await?;
 

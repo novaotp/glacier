@@ -36,7 +36,10 @@ async fn main() -> anyhow::Result<()> {
     let date = Local::now().format("%Y%m%d_%Hh%M").to_string();
 
     for service in &services {
-        let archive_descriptor = ArchiveDescriptor::new(&date, service.name());
+        println!("Starting backup for {} service...", service.name());
+
+        let archive_descriptor =
+            ArchiveDescriptor::new(&date, service.name(), service.file_extension());
 
         let data = service.export().await?;
         let data_path = data.path();
