@@ -1,7 +1,7 @@
 use chrono::Local;
 use coolify_backups::{
     config::Config,
-    service::{Service as _, outline::OutlineService},
+    service::{Service, nextcloud::NextcloudService, outline::OutlineService},
     storage::{ArchiveDescriptor, Storage, local::LocalStorage, s3::S3Storage},
 };
 
@@ -17,7 +17,7 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    if !config.outline.enabled {
+    if !config.nextcloud.enabled && !config.outline.enabled {
         println!("No services to export enabled. Aborting...");
         return Ok(());
     }
@@ -31,7 +31,14 @@ async fn main() -> anyhow::Result<()> {
         storages.push(Box::new(S3Storage::new(config.s3).await));
     }
 
-    let services = [OutlineService::new(config.outline)?];
+    let mut services: Vec<Box<dyn Service>> = vec![];
+    if config.nextcloud.enabled {
+        services.push(Box::new(NextcloudService::new(config.nextcloud)?));
+    }
+
+    if config.outline.enabled {
+        services.push(Box::new(OutlineService::new(config.outline)?));
+    }
 
     let date = Local::now().format("%Y%m%d_%Hh%M").to_string();
 
@@ -44,11 +51,13 @@ async fn main() -> anyhow::Result<()> {
         let data = service.export().await?;
         let data_path = data.path();
 
-        for storage in &storages {
+        let uploads = storages.iter().map(|storage| async {
             println!("Putting {} backup in {}...", service.name(), storage.name());
 
-            storage.upload(&archive_descriptor, data_path).await?;
-        }
+            storage.upload(&archive_descriptor, data_path).await
+        });
+
+        futures::future::try_join_all(uploads).await?;
     }
 
     println!("Completed backups");

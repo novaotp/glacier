@@ -1,3 +1,4 @@
+pub mod nextcloud;
 pub mod outline;
 
 use async_trait::async_trait;

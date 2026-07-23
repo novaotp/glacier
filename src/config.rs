@@ -5,6 +5,7 @@ pub struct Config {
     pub local: ConfigLocal,
     pub s3: ConfigS3,
     pub outline: ConfigOutline,
+    pub nextcloud: ConfigNextcloud,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -28,6 +29,14 @@ pub struct ConfigOutline {
     pub enabled: bool,
     pub url: String,
     pub api_key: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct ConfigNextcloud {
+    pub enabled: bool,
+    pub url: String,
+    pub username: String,
+    pub password: String,
 }
 
 impl Config {
