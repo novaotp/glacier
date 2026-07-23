@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use async_trait::async_trait;
 use aws_config::{BehaviorVersion, Region};
 use aws_sdk_s3::{
@@ -5,7 +7,6 @@ use aws_sdk_s3::{
     config::{Builder, Credentials},
     primitives::ByteStream,
 };
-use bytes::Bytes;
 
 use crate::{
     config::ConfigS3,
@@ -51,8 +52,8 @@ impl Storage for S3Storage {
 
     async fn upload(
         &self,
-        archive_descriptor: ArchiveDescriptor,
-        data: Bytes,
+        archive_descriptor: &ArchiveDescriptor,
+        data_path: &Path,
     ) -> anyhow::Result<()> {
         let key = format!(
             "data/{name}/backups/automatic/{date}_{name}_backup.zip",
@@ -65,7 +66,7 @@ impl Storage for S3Storage {
             .put_object()
             .bucket(&self.bucket)
             .key(key)
-            .body(ByteStream::from(data))
+            .body(ByteStream::from_path(data_path).await?)
             .send()
             .await?;
 

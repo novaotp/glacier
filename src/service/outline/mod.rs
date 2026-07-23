@@ -1,8 +1,11 @@
 mod api;
 
+use std::io::Write;
+
 use async_trait::async_trait;
-use bytes::Bytes;
+use futures_util::StreamExt;
 use reqwest::{Client, StatusCode, header};
+use tempfile::NamedTempFile;
 use tokio::time;
 
 use crate::{
@@ -105,7 +108,7 @@ impl Service for OutlineService {
         "outline"
     }
 
-    async fn export(&self) -> anyhow::Result<Bytes> {
+    async fn export(&self) -> anyhow::Result<NamedTempFile> {
         let mut file_operation = self.export_collections().await?;
 
         for _ in 0..3 {
@@ -134,10 +137,18 @@ impl Service for OutlineService {
             .get(format!("{}/api/fileOperations.redirect", self.url))
             .query(&[("id", &file_operation.id)])
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
 
-        let data = response.bytes().await?;
+        let mut stream = response.bytes_stream();
 
-        Ok(data)
+        let mut temp_file = NamedTempFile::new()?;
+        while let Some(chunk) = stream.next().await {
+            temp_file.write_all(&chunk?)?;
+        }
+
+        temp_file.flush()?;
+
+        Ok(temp_file)
     }
 }

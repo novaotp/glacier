@@ -36,14 +36,15 @@ async fn main() -> anyhow::Result<()> {
     let date = Local::now().format("%Y%m%d_%Hh%M").to_string();
 
     for service in &services {
+        let archive_descriptor = ArchiveDescriptor::new(&date, service.name());
+
         let data = service.export().await?;
+        let data_path = data.path();
 
         for storage in &storages {
             println!("Putting {} backup in {}...", service.name(), storage.name());
 
-            storage
-                .upload(ArchiveDescriptor::new(&date, service.name()), data.clone())
-                .await?;
+            storage.upload(&archive_descriptor, data_path).await?;
         }
     }
 

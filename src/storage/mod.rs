@@ -1,8 +1,9 @@
 pub mod local;
 pub mod s3;
 
+use std::path::Path;
+
 use async_trait::async_trait;
-use bytes::Bytes;
 
 /// A trait for any storage that can store some data.
 #[async_trait]
@@ -11,10 +12,15 @@ pub trait Storage {
     fn name(&self) -> &str;
 
     /// Uploads the given data to a storage endpoint
+    ///
+    /// # Arguments
+    ///
+    /// * `archive_descriptor`: Information to build a path or object key.
+    /// * `data_path`: The path to the file containing the data.
     async fn upload(
         &self,
-        archive_descriptor: ArchiveDescriptor,
-        data: Bytes,
+        archive_descriptor: &ArchiveDescriptor,
+        data_path: &Path,
     ) -> anyhow::Result<()>;
 }
 

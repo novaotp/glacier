@@ -1,5 +1,6 @@
+use std::path::Path;
+
 use async_trait::async_trait;
-use bytes::Bytes;
 use tokio::fs;
 
 use crate::{
@@ -36,15 +37,15 @@ impl Storage for LocalStorage {
 
     async fn upload(
         &self,
-        archive_descriptor: ArchiveDescriptor,
-        data: Bytes,
+        archive_descriptor: &ArchiveDescriptor,
+        data_path: &Path,
     ) -> anyhow::Result<()> {
         let path = format!(
             "{}/{}_{}_backup.zip",
             self.output_path, archive_descriptor.date, archive_descriptor.name
         );
 
-        fs::write(path, data).await?;
+        fs::copy(data_path, path).await?;
 
         Ok(())
     }
