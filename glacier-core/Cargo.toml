@@ -1,0 +1,25 @@
+[package]
+name = "glacier-core"
+description = "Core backup library used by Glacier."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+async-trait = "0.1.89"
+aws-config = { version = "1.9.0", features = ["behavior-version-latest"] }
+aws-sdk-s3 = "1.138.1"
+chrono.workspace = true
+config = "0.15.25"
+flate2 = "1.1.9"
+futures-util = "0.3.33"
+quick-xml = { version = "0.41.0", features = ["serialize"] }
+reqwest = { version = "0.13.4", features = ["json", "query", "stream"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.150"
+tar = "0.4.46"
+tempfile = "3.27.0"
+tokio.workspace = true
