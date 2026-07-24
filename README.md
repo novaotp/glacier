@@ -27,7 +27,7 @@ Glacier is a backup service for preserving data from the software I use every da
 3. Run the tool.
 
     ```sh
-    cargo run
+    cargo run -- --help
     ```
 
 ### Production

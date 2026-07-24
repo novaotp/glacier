@@ -1,66 +1,49 @@
-use chrono::Local;
-use glacier_core::{
-    config::Config,
-    service::{Service, nextcloud::NextcloudService, outline::OutlineService},
-    storage::{ArchiveDescriptor, Storage, local::LocalStorage, s3::S3Storage},
-};
+mod backup;
+mod cli;
+
+use clap::Parser;
+use cli::{GlacierCli, ServiceTarget, StorageTarget};
+use strum::IntoEnumIterator;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv()?;
 
-    println!("Loading configuration...");
-    let config = Config::new()?;
+    match GlacierCli::parse() {
+        GlacierCli::Backup(args) => {
+            let services = if args.all_services {
+                ensure_not_empty(
+                    ServiceTarget::iter()
+                        .filter(|service| !args.exclude_services.contains(service))
+                        .collect(),
+                    "services",
+                )?
+            } else {
+                args.services
+            };
 
-    if !config.local.enabled && !config.s3.enabled {
-        println!("No storage enabled. Aborting...");
-        return Ok(());
+            let storages = if args.storages.is_empty() {
+                ensure_not_empty(
+                    StorageTarget::iter()
+                        .filter(|storage| !args.exclude_storages.contains(storage))
+                        .collect(),
+                    "storage backends",
+                )?
+            } else {
+                args.storages
+            };
+
+            backup::backup(&services, &storages).await?;
+        }
     }
-
-    if !config.nextcloud.enabled && !config.outline.enabled {
-        println!("No services to export enabled. Aborting...");
-        return Ok(());
-    }
-
-    let mut storages: Vec<Box<dyn Storage>> = vec![];
-    if config.local.enabled {
-        storages.push(Box::new(LocalStorage::new(config.local).await?));
-    }
-
-    if config.s3.enabled {
-        storages.push(Box::new(S3Storage::new(config.s3).await));
-    }
-
-    let mut services: Vec<Box<dyn Service>> = vec![];
-    if config.nextcloud.enabled {
-        services.push(Box::new(NextcloudService::new(config.nextcloud)?));
-    }
-
-    if config.outline.enabled {
-        services.push(Box::new(OutlineService::new(config.outline)?));
-    }
-
-    let date = Local::now().format("%Y%m%d_%Hh%M").to_string();
-
-    for service in &services {
-        println!("Starting backup for {} service...", service.name());
-
-        let archive_descriptor =
-            ArchiveDescriptor::new(&date, service.name(), service.file_extension());
-
-        let data = service.export().await?;
-        let data_path = data.path();
-
-        let uploads = storages.iter().map(|storage| async {
-            println!("Putting {} backup in {}...", service.name(), storage.name());
-
-            storage.upload(&archive_descriptor, data_path).await
-        });
-
-        futures::future::try_join_all(uploads).await?;
-    }
-
-    println!("Completed backups");
 
     Ok(())
+}
+
+fn ensure_not_empty<T>(items: Vec<T>, what: &str) -> anyhow::Result<Vec<T>> {
+    if items.is_empty() {
+        anyhow::bail!("No {what} remain after applying exclusions.");
+    }
+
+    Ok(items)
 }

@@ -10,13 +10,11 @@ pub struct Config {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct ConfigLocal {
-    pub enabled: bool,
     pub output_path: String,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct ConfigS3 {
-    pub enabled: bool,
     pub bucket: String,
     pub region: String,
     pub endpoint: String,
@@ -26,14 +24,12 @@ pub struct ConfigS3 {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct ConfigOutline {
-    pub enabled: bool,
     pub url: String,
     pub api_key: String,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct ConfigNextcloud {
-    pub enabled: bool,
     pub url: String,
     pub username: String,
     pub password: String,
