@@ -1,5 +1,5 @@
 use chrono::Local;
-use coolify_backups::{
+use glacier::{
     config::Config,
     service::{Service, nextcloud::NextcloudService, outline::OutlineService},
     storage::{ArchiveDescriptor, Storage, local::LocalStorage, s3::S3Storage},

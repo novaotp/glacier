@@ -1,10 +1,10 @@
 [package]
-name = "coolify-backups"
+name = "glacier"
 version = "0.1.0"
 edition = "2024"
-description = "A small script to backup the data in some of my services hosted with Coolify."
+description = "Glacier is a backup service for preserving data from the software I use every day."
 license = "MIT"
-repository = "https://git.lab.itsnova.sh/novaotp/coolify-backups"
+repository = "https://git.lab.itsnova.sh/nova/glacier"
 publish = ["forgejo"]
 
 [dependencies]

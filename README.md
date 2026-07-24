@@ -1,6 +1,6 @@
-# Coolify Backups
+# Glacier
 
-A small script to backup the data in some of my services hosted with Coolify.
+Glacier is a backup service for preserving data from the software I use every day.
 
 ## Installation
 
@@ -41,5 +41,5 @@ A small script to backup the data in some of my services hosted with Coolify.
 2. Run the executable.
 
     ```sh
-    ./target/release/coolify-backups
+    ./target/release/glacier
     ```

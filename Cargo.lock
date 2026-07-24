@@ -763,29 +763,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "coolify-backups"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "aws-config",
- "aws-sdk-s3",
- "chrono",
- "config",
- "dotenvy",
- "flate2",
- "futures",
- "futures-util",
- "quick-xml",
- "reqwest",
- "serde",
- "serde_json",
- "tar",
- "tempfile",
- "tokio",
-]
-
-[[package]]
 name = "core-foundation"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1236,6 +1213,29 @@ dependencies = [
  "r-efi",
  "rand_core 0.10.1",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "glacier"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "aws-config",
+ "aws-sdk-s3",
+ "chrono",
+ "config",
+ "dotenvy",
+ "flate2",
+ "futures",
+ "futures-util",
+ "quick-xml",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tar",
+ "tempfile",
+ "tokio",
 ]
 
 [[package]]
