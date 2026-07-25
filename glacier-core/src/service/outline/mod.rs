@@ -11,7 +11,7 @@ use tokio::time;
 use crate::{
     config::ConfigOutline,
     service::{
-        Service,
+        ExportItem, Service,
         outline::api::{ApiResponse, ExportCollections, FileOperation, FileOperationState},
     },
 };
@@ -108,11 +108,7 @@ impl Service for OutlineService {
         "outline"
     }
 
-    fn file_extension(&self) -> &str {
-        "zip"
-    }
-
-    async fn export(&self) -> anyhow::Result<NamedTempFile> {
+    async fn export(&self) -> anyhow::Result<Vec<ExportItem>> {
         let mut file_operation = self.export_collections().await?;
 
         for _ in 0..3 {
@@ -153,6 +149,6 @@ impl Service for OutlineService {
 
         temp_file.flush()?;
 
-        Ok(temp_file)
+        Ok(vec![ExportItem::new("files", "zip", temp_file)])
     }
 }

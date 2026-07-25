@@ -56,10 +56,9 @@ impl Storage for S3Storage {
         data_path: &Path,
     ) -> anyhow::Result<()> {
         let key = format!(
-            "data/{name}/backups/automatic/{date}_{name}_backup.{extension}",
-            name = archive_descriptor.name,
-            date = archive_descriptor.date,
-            extension = archive_descriptor.file_extension
+            "data/{}/backups/automatic/{}",
+            archive_descriptor.service_name,
+            archive_descriptor.to_filename()
         );
 
         let _ = self

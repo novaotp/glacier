@@ -38,16 +38,28 @@ pub async fn backup(
     for service in &services {
         println!("Starting backup for {} service...", service.name());
 
-        let archive_descriptor =
-            ArchiveDescriptor::new(&date, service.name(), service.file_extension());
+        let export_items = service.export().await?;
 
-        let data = service.export().await?;
-        let data_path = data.path();
+        let uploads = export_items.iter().flat_map(|item| {
+            let date = date.clone();
 
-        let uploads = storages.iter().map(|storage| async {
-            println!("Putting {} backup in {}...", service.name(), storage.name());
+            storages.iter().map(move |storage| {
+                let date = date.clone();
 
-            storage.upload(&archive_descriptor, data_path).await
+                async move {
+                    println!(
+                        "Putting {} ({}) backup in {}...",
+                        service.name(),
+                        item.name,
+                        storage.name()
+                    );
+
+                    let archive_descriptor =
+                        ArchiveDescriptor::new(&date, service.name(), &item.name, &item.extension);
+
+                    storage.upload(&archive_descriptor, item.file.path()).await
+                }
+            })
         });
 
         futures::future::try_join_all(uploads).await?;

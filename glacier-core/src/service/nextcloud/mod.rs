@@ -2,11 +2,10 @@ mod client;
 mod types;
 
 use async_trait::async_trait;
-use tempfile::NamedTempFile;
 
 use crate::{
     config::ConfigNextcloud,
-    service::{Service, nextcloud::client::NextcloudClient},
+    service::{ExportItem, Service, nextcloud::client::NextcloudClient},
 };
 
 /// A backup service that exports all files from a Nextcloud instance.
@@ -37,13 +36,14 @@ impl Service for NextcloudService {
         "nextcloud"
     }
 
-    fn file_extension(&self) -> &str {
-        "tar.gz"
-    }
-
-    async fn export(&self) -> anyhow::Result<NamedTempFile> {
+    async fn export(&self) -> anyhow::Result<Vec<ExportItem>> {
         println!("Exporting Nextcloud files...");
 
-        self.client.export_all(&self.username, &self.password).await
+        let temp_file = self
+            .client
+            .export_all(&self.username, &self.password)
+            .await?;
+
+        Ok(vec![ExportItem::new("files", "tar.gz", temp_file)])
     }
 }

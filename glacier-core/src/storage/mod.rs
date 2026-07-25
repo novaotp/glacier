@@ -24,27 +24,41 @@ pub trait Storage {
     ) -> anyhow::Result<()>;
 }
 
-/// Describes a backup archive for constructing a storage-specific path or object key.
+/// Describes an exported artifact for constructing a storage-specific path or object key.
 pub struct ArchiveDescriptor {
-    /// The date of the archive.
+    /// The date of the export.
     pub date: String,
-    /// The name of the service.
-    pub name: String,
-    /// The extension of the archive.
-    pub file_extension: String,
+    /// The name of the service that produced the artifact.
+    pub service_name: String,
+    /// The logical name of the exported artifact.
+    pub item_name: String,
+    /// The file extension of the exported artifact.
+    pub extension: String,
 }
 
 impl ArchiveDescriptor {
     /// Creates a new archive descriptor.
     pub fn new(
         date: impl Into<String>,
-        name: impl Into<String>,
-        file_extension: impl Into<String>,
+        service_name: impl Into<String>,
+        item_name: impl Into<String>,
+        extension: impl Into<String>,
     ) -> Self {
         Self {
             date: date.into(),
-            name: name.into(),
-            file_extension: file_extension.into(),
+            service_name: service_name.into(),
+            item_name: item_name.into(),
+            extension: extension.into(),
         }
+    }
+
+    /// Returns the default filename for the exported artifact.
+    ///
+    /// The filename follows the format `<date>_<service_name>_<item_name>.<extension>`.
+    pub fn to_filename(&self) -> String {
+        format!(
+            "{}_{}_{}.{}",
+            self.date, self.service_name, self.item_name, self.extension
+        )
     }
 }
