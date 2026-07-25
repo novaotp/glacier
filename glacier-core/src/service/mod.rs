@@ -1,3 +1,4 @@
+pub mod bitwarden;
 pub mod nextcloud;
 pub mod outline;
 

@@ -6,6 +6,7 @@ pub struct Config {
     pub s3: ConfigS3,
     pub outline: ConfigOutline,
     pub nextcloud: ConfigNextcloud,
+    pub bitwarden: ConfigBitwarden,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -33,6 +34,20 @@ pub struct ConfigNextcloud {
     pub url: String,
     pub username: String,
     pub password: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct ConfigBitwarden {
+    pub auth: BitwardenAuth,
+    pub master_password: String,
+    pub format: String,
+}
+
+/// The credentials to authenticate using the API key.
+#[derive(Clone, Debug, Deserialize)]
+pub struct BitwardenAuth {
+    pub client_id: String,
+    pub client_secret: String,
 }
 
 impl Config {
