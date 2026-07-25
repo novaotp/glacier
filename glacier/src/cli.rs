@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{ArgAction, Args, Parser, ValueEnum, crate_version};
 use strum::EnumIter;
 
@@ -9,10 +11,14 @@ use strum::EnumIter;
     long_about = None
 )]
 pub enum GlacierCli {
+    /// Backup one or more services.
     Backup(BackupArgs),
+    /// Encrypts a file.
+    Encrypt(EncryptArgs),
+    /// Decrypts a file.
+    Decrypt(DecryptArgs),
 }
 
-/// Backup one or more services.
 #[derive(Args, Debug)]
 pub struct BackupArgs {
     /// Includes all services. Cannot be used with --services.
@@ -79,4 +85,26 @@ pub enum ServiceTarget {
 pub enum StorageTarget {
     Local,
     S3,
+}
+
+#[derive(Args, Debug)]
+pub struct EncryptArgs {
+    /// Input file to encrypt.
+    pub input: PathBuf,
+    /// Output file for the encrypted data.
+    pub output: PathBuf,
+    /// Encryption password.
+    #[arg(long, env = "GLACIER_PASSWORD")]
+    pub password: String,
+}
+
+#[derive(Args, Debug)]
+pub struct DecryptArgs {
+    /// Input file to decrypt.
+    pub input: PathBuf,
+    /// Output file for the decrypted data.
+    pub output: PathBuf,
+    /// Decryption password.
+    #[arg(long, env = "GLACIER_PASSWORD")]
+    pub password: String,
 }

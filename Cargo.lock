@@ -1378,6 +1378,7 @@ dependencies = [
  "dotenvy",
  "futures",
  "glacier-core",
+ "glacier-crypto",
  "strum",
  "tokio",
 ]

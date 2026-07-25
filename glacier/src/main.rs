@@ -3,6 +3,7 @@ mod cli;
 
 use clap::Parser;
 use cli::{GlacierCli, ServiceTarget, StorageTarget};
+use glacier_crypto::{decrypt::decrypt_file, encrypt::encrypt_file};
 use strum::IntoEnumIterator;
 
 #[tokio::main]
@@ -35,6 +36,8 @@ async fn main() -> anyhow::Result<()> {
 
             backup::backup(&services, &storages).await?;
         }
+        GlacierCli::Encrypt(args) => encrypt_file(&args.input, &args.output, &args.password)?,
+        GlacierCli::Decrypt(args) => decrypt_file(&args.input, &args.output, &args.password)?,
     }
 
     Ok(())
