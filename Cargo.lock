@@ -1395,6 +1395,7 @@ dependencies = [
  "config",
  "flate2",
  "futures-util",
+ "glacier-crypto",
  "quick-xml",
  "reqwest",
  "serde",
