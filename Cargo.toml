@@ -13,4 +13,5 @@ publish = ["forgejo"]
 [workspace.dependencies]
 anyhow = "1.0.103"
 chrono = "0.4.45"
+tempfile = "3.27.0"
 tokio = { version = "1.52.3", features = ["macros", "rt-multi-thread"] }
