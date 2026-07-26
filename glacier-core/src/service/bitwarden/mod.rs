@@ -1,7 +1,9 @@
 mod client;
 
 use async_trait::async_trait;
+use glacier_crypto::encrypt::encrypt_file;
 use tempfile::NamedTempFile;
+use tokio::task;
 
 use crate::{
     config::ConfigBitwarden,
@@ -50,6 +52,31 @@ impl BitwardenService {
 
         Ok(temp_file)
     }
+
+    /// Encrypts the file if the encryption password is set, otherwise returns as-is.
+    pub async fn maybe_encrypt(
+        &self,
+        temp_file: NamedTempFile,
+    ) -> anyhow::Result<(NamedTempFile, String)> {
+        let Some(password) = self.config.encrypt_password.clone() else {
+            return Ok((temp_file, self.config.format.clone()));
+        };
+
+        let encrypted_temp_file = task::spawn_blocking(move || -> anyhow::Result<NamedTempFile> {
+            let encrypted_temp_file = NamedTempFile::new()?;
+
+            println!("Encrypting file...");
+            encrypt_file(temp_file.path(), encrypted_temp_file.path(), &password)?;
+
+            Ok(encrypted_temp_file)
+        })
+        .await??;
+
+        Ok((
+            encrypted_temp_file,
+            format!("{}.glacier", self.config.format),
+        ))
+    }
 }
 
 #[async_trait]
@@ -82,12 +109,8 @@ impl Service for BitwardenService {
         println!("Logging out of account...");
         let _ = client.logout().await;
 
-        let temp_file = result?;
+        let (temp_file, format) = self.maybe_encrypt(result?).await?;
 
-        Ok(vec![ExportItem::new(
-            "passwords",
-            self.config.format.clone(),
-            temp_file,
-        )])
+        Ok(vec![ExportItem::new("passwords", format, temp_file)])
     }
 }

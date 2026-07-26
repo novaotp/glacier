@@ -41,6 +41,7 @@ pub struct ConfigBitwarden {
     pub auth: BitwardenAuth,
     pub master_password: String,
     pub format: String,
+    pub encrypt_password: Option<String>,
 }
 
 /// The credentials to authenticate using the API key.
