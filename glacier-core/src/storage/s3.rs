@@ -16,12 +16,34 @@ use crate::{
 /// A wrapper client for interacting with S3-compatible storage.
 #[derive(Debug, Clone)]
 pub struct S3Storage {
+    /// The underlying S3 client.
     client: Client,
+    /// The bucket to operate on.
     bucket: String,
 }
 
 impl S3Storage {
     /// Initializes a new S3 client.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use glacier_core::{config::ConfigS3, storage::s3::S3Storage};
+    ///
+    /// # #[tokio::test]
+    /// # async fn try_main() {
+    /// let config = ConfigS3 {
+    ///     bucket: String::from("default-bucket"),
+    ///     region: String::from("us-east-1"),
+    ///     endpoint: String::from("https://s3.example.com"),
+    ///     access_key: String::from("YOUR_ACCESS_KEY"),
+    ///     secret_key: String::from("YOUR_SECRET_KEY"),
+    /// };
+    ///
+    /// let s3 = S3Storage::new(config).await;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn new(config: ConfigS3) -> Self {
         let credentials =
             Credentials::new(&config.access_key, &config.secret_key, None, None, "static");
@@ -34,6 +56,7 @@ impl S3Storage {
 
         #[cfg(debug_assertions)]
         {
+            // Local S3 container needs it
             builder = builder.force_path_style(true);
         }
 

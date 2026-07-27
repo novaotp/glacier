@@ -30,6 +30,19 @@ pub struct ExportItem {
 
 impl ExportItem {
     /// Creates a new export item.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use glacier_core::service::ExportItem;
+    /// use tempfile::NamedTempFile;
+    ///
+    /// // The file containing data.
+    /// let file = NamedTempFile::new()?;
+    ///
+    /// let export_item = ExportItem::new("files", "tar.gz", file);
+    /// # Ok::<(), anyhow::Error>(())
+    /// ```
     pub fn new(name: impl Into<String>, extension: impl Into<String>, file: NamedTempFile) -> Self {
         Self {
             name: name.into(),

@@ -25,6 +25,20 @@ pub struct OutlineService {
 impl OutlineService {
     /// Creates a new `OutlineService`.
     ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use glacier_core::{config::ConfigOutline, service::outline::OutlineService};
+    ///
+    /// let config = ConfigOutline {
+    ///     url: String::from("https://outline.example.com"),
+    ///     api_key: String::from("YOUR_API_KEY"),
+    /// };
+    ///
+    /// let outline = OutlineService::new(config)?;
+    /// # Ok::<(), anyhow::Error>(())
+    /// ```
+    ///
     /// # Errors
     ///
     /// If the reqwest [Client] cannot be built.
@@ -44,7 +58,45 @@ impl OutlineService {
         })
     }
 
+    /// Triggers an export of all collections.
+    ///
+    /// # Errors
+    ///
+    /// See [`post`](OutlineService::post) for more information.
+    async fn export_collections(&self) -> anyhow::Result<FileOperation> {
+        println!("Exporting data...");
+
+        let data: ExportCollections = self
+            .post(
+                "collections.export_all",
+                serde_json::json!({
+                    "format": "json",
+                    "includeAttachments": true,
+                    "includePrivate": true
+                }),
+            )
+            .await?;
+
+        Ok(data.file_operation)
+    }
+
+    /// Checks the status of a file operation.
+    ///
+    /// # Errors
+    ///
+    /// See [`post`](OutlineService::post) for more information.
+    async fn get_operation_info(&self, id: &str) -> anyhow::Result<FileOperation> {
+        self.post("fileOperations.info", serde_json::json!({ "id": id }))
+            .await
+    }
+
     /// Internal helper to execute authenticated requests.
+    ///
+    /// # Errors
+    ///
+    /// This method fails if :
+    /// - there was an error while sending request, redirect loop was detected or redirect limit was exhausted.
+    /// - the response body is not in JSON format, or it cannot be properly deserialized to target type T.
     async fn post<T: serde::de::DeserializeOwned>(
         &self,
         path: &str,
@@ -75,30 +127,6 @@ impl OutlineService {
                 Err(anyhow::anyhow!(message.unwrap_or(error)))
             }
         }
-    }
-
-    /// Triggers an export of all collections.
-    async fn export_collections(&self) -> anyhow::Result<FileOperation> {
-        println!("Exporting data...");
-
-        let data: ExportCollections = self
-            .post(
-                "collections.export_all",
-                serde_json::json!({
-                    "format": "json",
-                    "includeAttachments": true,
-                    "includePrivate": true
-                }),
-            )
-            .await?;
-
-        Ok(data.file_operation)
-    }
-
-    /// Checks the status of a file operation.
-    async fn get_operation_info(&self, id: &str) -> anyhow::Result<FileOperation> {
-        self.post("fileOperations.info", serde_json::json!({ "id": id }))
-            .await
     }
 }
 

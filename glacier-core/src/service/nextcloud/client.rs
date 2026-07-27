@@ -12,7 +12,7 @@ use crate::service::nextcloud::types::Multistatus;
 
 /// A client to interact with a Nextcloud instance.
 pub struct NextcloudClient {
-    /// The [reqwest] client.
+    /// The underlying [reqwest] client.
     client: Client,
     /// The Nextcloud URL.
     url: String,
@@ -21,7 +21,9 @@ pub struct NextcloudClient {
 /// Credentials used to authenticate requests to Nextcloud.
 #[derive(Debug)]
 struct BasicAuth {
+    /// The username of the Nextcloud account.
     username: String,
+    /// The app password of the Nextcloud account for this service.
     password: String,
 }
 
@@ -40,7 +42,7 @@ impl NextcloudClient {
     ///
     /// # Errors
     ///
-    /// If the reqwest [Client] cannot be built.
+    /// If the [`reqwest::Client`](Client) cannot be built.
     pub fn new(url: String) -> anyhow::Result<Self> {
         Ok(Self {
             client: Client::builder().build()?,
@@ -52,8 +54,7 @@ impl NextcloudClient {
     ///
     /// # Errors
     ///
-    /// Returns an error if traversing the WebDAV hierarchy, downloading a file,
-    /// or writing the archive fails.
+    /// Returns an error if traversing the WebDAV hierarchy, downloading a file, or writing the archive fails.
     pub async fn export_all(
         &self,
         username: impl Into<String>,
@@ -72,9 +73,6 @@ impl NextcloudClient {
     }
 
     /// Traverses the user's WebDAV hierarchy and appends each file to the archive.
-    ///
-    /// An explicit stack is used instead of recursion to avoid recursive async
-    /// functions.
     async fn append_to_tar(
         &self,
         tar: &mut tar::Builder<GzEncoder<NamedTempFile>>,
@@ -86,13 +84,11 @@ impl NextcloudClient {
             let multistatus = self.propfind(&folder, auth).await?;
 
             for response in &multistatus.responses {
-                let folder_without_prefix =
-                    self.remove_webdav_prefix(&response.href, &auth.username);
-                let folder_path = folder_without_prefix.trim_start_matches('/');
+                let folder_path = self.remove_webdav_prefix(&response.href, &auth.username);
 
                 // A PROPFIND response includes the queried collection itself.
                 // Skip it to avoid traversing the same directory repeatedly.
-                if folder_path.trim_matches('/') == folder.trim_matches('/') {
+                if folder_path == folder {
                     continue;
                 }
 
@@ -121,6 +117,13 @@ impl NextcloudClient {
     }
 
     /// Performs a `PROPFIND` request for the specified directory.
+    ///
+    /// # Errors
+    ///
+    /// This method fails if there was an error :
+    /// - while sending request, redirect loop was detected or redirect limit was exhausted.
+    /// - decoding the body as text.
+    /// - deserializing the XML content.
     async fn propfind(&self, folder: &str, auth: &BasicAuth) -> anyhow::Result<Multistatus> {
         let method = Method::from_bytes("PROPFIND".as_bytes())?;
         let url = format!(
@@ -143,8 +146,12 @@ impl NextcloudClient {
 
     /// Downloads a file into a temporary file.
     ///
-    /// The file is streamed directly to disk to avoid buffering its contents in
-    /// memory.
+    /// # Errors
+    ///
+    /// This method fails if there was an error :
+    /// - while sending request, redirect loop was detected or redirect limit was exhausted.
+    /// - with the the temporary file (can not be created, flushing, rewinding).
+    /// - receiving a file chunk.
     async fn get_file(&self, path: &str, auth: &BasicAuth) -> anyhow::Result<File> {
         let url = format!("{}{}", self.url, path);
 
@@ -176,12 +183,13 @@ impl NextcloudClient {
         format!("{}/remote.php/dav/files/{}", self.url, username)
     }
 
-    /// Removes the `/remote.php/dav/files/<user>` prefix from a WebDAV path.
+    /// Removes the `/remote.php/dav/files/<user>/` prefix from a WebDAV path.
     ///
-    /// The returned path is suitable for use as the path of an entry within the
-    /// generated tar archive.
+    /// The returned path is suitable for use as the path of an entry within the generated tar
+    /// archive as it removes the starting `/`.
     fn remove_webdav_prefix(&self, href: &str, username: &str) -> String {
-        let prefix = format!("/remote.php/dav/files/{}", username);
+        // Include last `/` because tar doesn't allow writing with absolute paths
+        let prefix = format!("/remote.php/dav/files/{}/", username);
 
         href.trim_start_matches(&prefix).to_owned()
     }

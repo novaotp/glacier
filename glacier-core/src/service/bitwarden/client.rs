@@ -13,6 +13,12 @@ impl BitwardenClient {
     }
 
     /// Authenticates with the Bitwarden CLI using API credentials.
+    ///
+    /// # Errors
+    ///
+    /// Return an error if :
+    /// - the child process cannot be spawned or if there is an error while awaiting its status.
+    /// - the command exited with a non-zero status.
     pub async fn login(&self, credentials: &BitwardenAuth) -> anyhow::Result<()> {
         let mut command = Command::new("bw");
 
@@ -25,12 +31,19 @@ impl BitwardenClient {
             .arg("--nointeraction")
             .output()
             .await?;
-        bail_on_stderr(&output)?;
+        bail_on_err(&output)?;
 
         Ok(())
     }
 
     /// Unlocks the vault using the master password and returns the session key token.
+    ///
+    /// # Errors
+    ///
+    /// Return an error if :
+    /// - the child process cannot be spawned or if there is an error while awaiting its status.
+    /// - the command exited with a non-zero status.
+    /// - the output is not UTF-8.
     pub async fn unlock(&self, master_password: impl Into<String>) -> anyhow::Result<String> {
         let mut command = Command::new("bw");
 
@@ -43,7 +56,7 @@ impl BitwardenClient {
             .arg("--raw")
             .output()
             .await?;
-        bail_on_stderr(&output)?;
+        bail_on_err(&output)?;
 
         let session = String::from_utf8(output.stdout)?.trim().to_owned();
 
@@ -51,6 +64,12 @@ impl BitwardenClient {
     }
 
     /// Exports vault data to the specified file path using an active session key.
+    ///
+    /// # Errors
+    ///
+    /// Return an error if :
+    /// - the child process cannot be spawned or if there is an error while awaiting its status.
+    /// - the command exited with a non-zero status.
     pub async fn export(
         &self,
         path: impl Into<String>,
@@ -80,12 +99,18 @@ impl BitwardenClient {
         };
 
         let output = command.output().await?;
-        bail_on_stderr(&output)?;
+        bail_on_err(&output)?;
 
         Ok(())
     }
 
     /// Clears the current login session.
+    ///
+    /// # Errors
+    ///
+    /// Return an error if :
+    /// - the child process cannot be spawned or if there is an error while awaiting its status.
+    /// - the command exited with a non-zero status.
     pub async fn logout(&self) -> anyhow::Result<()> {
         let mut command = Command::new("bw");
 
@@ -95,13 +120,14 @@ impl BitwardenClient {
             .output()
             .await?;
 
-        bail_on_stderr(&output)?;
+        bail_on_err(&output)?;
 
         Ok(())
     }
 }
 
-fn bail_on_stderr(output: &Output) -> anyhow::Result<()> {
+/// Returns an error if the output exited with a non-zero status.
+fn bail_on_err(output: &Output) -> anyhow::Result<()> {
     if !output.status.success() {
         anyhow::bail!(String::from_utf8(output.stderr.clone())?)
     }

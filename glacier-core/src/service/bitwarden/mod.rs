@@ -20,6 +20,27 @@ pub struct BitwardenService {
 
 impl BitwardenService {
     /// Creates a new `BitwardenService`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use glacier_core::{
+    ///     config::{BitwardenAuth, ConfigBitwarden},
+    ///     service::bitwarden::BitwardenService
+    /// };
+    ///
+    /// let config = ConfigBitwarden {
+    ///     auth: BitwardenAuth {
+    ///         client_id: String::from("YOUR_CLIENT_ID"),
+    ///         client_secret: String::from("YOUR_CLIENT_SECRET"),
+    ///     },
+    ///     master_password: String::from("YOUR_MASTER_PASSWORD"),
+    ///     format: String::from("csv"),
+    ///     encrypt_password: None,
+    /// };
+    ///
+    /// let bitwarden = BitwardenService::new(config);
+    /// ```
     pub fn new(config: ConfigBitwarden) -> Self {
         Self { config }
     }
@@ -27,7 +48,14 @@ impl BitwardenService {
 
 impl BitwardenService {
     /// Attempts to export the vault data using the given session.
-    pub async fn try_export(
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if :
+    /// - an unsupported/invalid format is given.
+    /// - there was an error with the tempfile.
+    /// - the export failed.
+    async fn try_export(
         &self,
         client: &BitwardenClient,
         session: &str,
@@ -54,7 +82,11 @@ impl BitwardenService {
     }
 
     /// Encrypts the file if the encryption password is set, otherwise returns as-is.
-    pub async fn maybe_encrypt(
+    ///
+    /// # Errors
+    ///
+    /// This method fails if there was an error while encrypting the file.
+    async fn maybe_encrypt(
         &self,
         temp_file: NamedTempFile,
     ) -> anyhow::Result<(NamedTempFile, String)> {

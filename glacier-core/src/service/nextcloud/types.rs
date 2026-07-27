@@ -14,6 +14,7 @@ pub struct Response {
     /// The path of the resource, beginning with `/remote.php/dav/...`.
     #[serde(rename = "href")]
     pub href: String,
+    /// The ressource's properties.
     #[serde(rename = "propstat")]
     pub propstat: Propstat,
 }
@@ -28,6 +29,7 @@ impl Response {
 /// The properties associated with a resource.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Propstat {
+    /// The subset of WebDAV properties required for creating the backup archive.
     #[serde(rename = "prop")]
     pub prop: Prop,
     /// The HTTP status for the enclosed properties (for example, `HTTP/1.1 200 OK`).
@@ -51,6 +53,7 @@ pub struct Prop {
     pub content_length: Option<String>,
 }
 
+/// The type of the WebDAV resource.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Resourcetype {
     /// Present if the resource is a collection (directory).
@@ -60,5 +63,6 @@ pub struct Resourcetype {
     pub collection: Option<Collection>,
 }
 
+/// A directory.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Collection;

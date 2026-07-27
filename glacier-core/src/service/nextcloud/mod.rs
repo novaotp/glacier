@@ -10,13 +10,31 @@ use crate::{
 
 /// A backup service that exports all files from a Nextcloud instance.
 pub struct NextcloudService {
+    /// The underlying Nextcloud client.
     client: NextcloudClient,
+    /// The username of the Nextcloud account.
     username: String,
+    /// The app password of the Nextcloud account for this service.
     password: String,
 }
 
 impl NextcloudService {
     /// Creates a new `NextcloudService`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use glacier_core::{config::ConfigNextcloud, service::nextcloud::NextcloudService};
+    ///
+    /// let config = ConfigNextcloud {
+    ///     url: String::from("https://nextcloud.example.com"),
+    ///     username: String::from("johndoe"),
+    ///     password: String::from("YOUR_APP_PASSWORD"),
+    /// };
+    ///
+    /// let nextcloud = NextcloudService::new(config)?;
+    /// # Ok::<(), anyhow::Error>(())
+    /// ```
     ///
     /// # Errors
     ///

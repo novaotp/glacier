@@ -17,9 +17,25 @@ pub struct LocalStorage {
 impl LocalStorage {
     /// Initializes a new local storage.
     ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use glacier_core::{config::ConfigLocal, storage::local::LocalStorage};
+    ///
+    /// # #[tokio::test]
+    /// # async fn try_main() -> anyhow::Result<()> {
+    /// let config = ConfigLocal {
+    ///     output_path: String::from("./output"),
+    /// };
+    ///
+    /// let local = LocalStorage::new(config).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
     /// # Errors
     ///
-    /// If any directory specified by path does not already exist and could not be created otherwise.
+    /// If any directory specified by [`config.output_path`](LocalStorage::output_path) does not already exist and could not be created otherwise.
     pub async fn new(config: ConfigLocal) -> anyhow::Result<Self> {
         fs::create_dir_all(&config.output_path).await?;
 
