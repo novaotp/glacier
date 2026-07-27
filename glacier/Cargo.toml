@@ -13,7 +13,7 @@ chrono.workspace = true
 clap = { version = "4.6.4", features = ["cargo", "derive", "env"] }
 dotenvy = "0.15.7"
 futures = "0.3.33"
-glacier-core = { version = "0.1.0", path = "../glacier-core" }
-glacier-crypto = { version = "0.1.0", path = "../glacier-crypto" }
+glacier-core.workspace = true
+glacier-crypto.workspace = true
 strum = { version = "0.28.0", features = ["derive"] }
 tokio.workspace = true
