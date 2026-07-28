@@ -3,7 +3,7 @@ resolver = "3"
 members = ["glacier", "glacier-core", "glacier-crypto"]
 
 [workspace.package]
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 description = "Glacier is a backup service for preserving data from the software I use every day."
 license = "MIT"
@@ -25,7 +25,7 @@ consolidate-commits = true
 [workspace.dependencies]
 anyhow = "1.0.103"
 chrono = "0.4.45"
-glacier-core = { version = "0.1.0", path = "glacier-core" }
-glacier-crypto = { version = "0.1.0", path = "glacier-crypto" }
+glacier-core = { version = "1.0.0", path = "glacier-core" }
+glacier-crypto = { version = "1.0.0", path = "glacier-crypto" }
 tempfile = "3.27.0"
 tokio = { version = "1.52.3", features = ["macros", "rt-multi-thread"] }
