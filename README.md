@@ -24,6 +24,14 @@ Glacier is a backup service for preserving data from the software I use every da
     glacier backup --all-services
     ```
 
+### Service Requirements
+
+| Service   | Comment                                                                                                                     |
+| --------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Bitwarden | The [Bitwarden CLI](https://bitwarden.com/help/cli/#download-and-install) (`bw`) must be installed and available in `PATH`. |
+| Nextcloud | None.                                                                                                                       |
+| Outline   | None.                                                                                                                       |
+
 ### Configuration
 
 Glacier supports configuration through :
