@@ -8,7 +8,7 @@ use strum::IntoEnumIterator;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    dotenvy::dotenv()?;
+    let _ = dotenvy::dotenv();
 
     match GlacierCli::parse() {
         GlacierCli::Backup(args) => {

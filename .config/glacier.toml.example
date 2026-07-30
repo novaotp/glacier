@@ -1,0 +1,31 @@
+# Storages
+
+[local]
+output_path = "output"
+
+[s3]
+bucket = "default-bucket"
+region = "us-east-1"
+endpoint = "http://localhost:9090"
+access_key = ""
+secret_key = ""
+
+# Services
+
+[outline]
+url = "https://outline.example.com"
+api_key = ""
+
+[nextcloud]
+url = "https://cloud.example.com"
+username = ""
+password = ""
+
+[bitwarden]
+format = "csv"
+master_password = ""
+
+[bitwarden.auth]
+client_id = ""
+client_secret = ""
+# encrypt_password = ""         # Custom encryption via glacier-crypto, set a value to enable encryption

@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]
@@ -52,15 +54,26 @@ pub struct BitwardenAuth {
 }
 
 impl Config {
-    /// Creates a new configuration based on environment variables.
+    /// Creates a new configuration based on config files and environment variables.
     pub fn new() -> anyhow::Result<Self> {
-        Ok(config::Config::builder()
+        let config = config::Config::builder()
+            .add_source(config_file("~/.config/glacier.toml"))
+            .add_source(config_file(".config/glacier.toml"))
             .add_source(
                 config::Environment::default()
                     .separator("__")
                     .try_parsing(true),
             )
             .build()?
-            .try_deserialize::<Config>()?)
+            .try_deserialize()?;
+
+        Ok(config)
     }
+}
+
+fn config_file(path: &str) -> config::File<config::FileSourceFile, config::FileFormat> {
+    let expanded_path = shellexpand::tilde(path);
+    let path = Path::new(expanded_path.as_ref());
+
+    config::File::from(path).required(false)
 }
