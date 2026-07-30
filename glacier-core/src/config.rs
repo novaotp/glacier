@@ -29,6 +29,7 @@ pub struct ConfigS3 {
 pub struct ConfigOutline {
     pub url: String,
     pub api_key: String,
+    pub encrypt_password: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -36,6 +37,7 @@ pub struct ConfigNextcloud {
     pub url: String,
     pub username: String,
     pub password: String,
+    pub encrypt_password: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize)]

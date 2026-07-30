@@ -3,7 +3,9 @@ pub mod nextcloud;
 pub mod outline;
 
 use async_trait::async_trait;
+use glacier_crypto::encrypt::encrypt_file;
 use tempfile::NamedTempFile;
+use tokio::task;
 
 /// A trait for any service that can export its data.
 #[async_trait]
@@ -13,6 +15,36 @@ pub trait Service {
 
     /// Performs the export and returns one or more exported artifacts.
     async fn export(&self) -> anyhow::Result<Vec<ExportItem>>;
+
+    /// Encrypts the file if the encryption password is set, otherwise returns as-is.
+    ///
+    /// # Errors
+    ///
+    /// This method fails if there was an error while encrypting the file.
+    async fn maybe_encrypt(
+        &self,
+        temp_file: NamedTempFile,
+        format: &str,
+        encrypt_password: Option<&str>,
+    ) -> anyhow::Result<(NamedTempFile, String)> {
+        let Some(password) = encrypt_password else {
+            return Ok((temp_file, format.to_owned()));
+        };
+
+        let password = password.to_owned();
+
+        let encrypted_temp_file = task::spawn_blocking(move || -> anyhow::Result<NamedTempFile> {
+            let encrypted_temp_file = NamedTempFile::new()?;
+
+            println!("Encrypting file...");
+            encrypt_file(temp_file.path(), encrypted_temp_file.path(), &password)?;
+
+            Ok(encrypted_temp_file)
+        })
+        .await??;
+
+        Ok((encrypted_temp_file, format!("{}.glacier", format)))
+    }
 }
 
 /// A single artifact produced by a service export.

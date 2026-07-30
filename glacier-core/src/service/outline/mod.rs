@@ -20,6 +20,7 @@ use crate::{
 pub struct OutlineService {
     client: Client,
     url: String,
+    encrypt_password: Option<String>,
 }
 
 impl OutlineService {
@@ -33,6 +34,7 @@ impl OutlineService {
     /// let config = ConfigOutline {
     ///     url: String::from("https://outline.example.com"),
     ///     api_key: String::from("YOUR_API_KEY"),
+    ///     encrypt_password: None,
     /// };
     ///
     /// let outline = OutlineService::new(config)?;
@@ -55,6 +57,7 @@ impl OutlineService {
         Ok(Self {
             client,
             url: config.url,
+            encrypt_password: config.encrypt_password,
         })
     }
 
@@ -177,6 +180,10 @@ impl Service for OutlineService {
 
         temp_file.flush()?;
 
-        Ok(vec![ExportItem::new("files", "zip", temp_file)])
+        let (temp_file, format) = self
+            .maybe_encrypt(temp_file, "zip", self.encrypt_password.as_deref())
+            .await?;
+
+        Ok(vec![ExportItem::new("files", format, temp_file)])
     }
 }

@@ -16,6 +16,8 @@ pub struct NextcloudService {
     username: String,
     /// The app password of the Nextcloud account for this service.
     password: String,
+    /// The password to use for encryption, if any.
+    encrypt_password: Option<String>,
 }
 
 impl NextcloudService {
@@ -30,6 +32,7 @@ impl NextcloudService {
     ///     url: String::from("https://nextcloud.example.com"),
     ///     username: String::from("johndoe"),
     ///     password: String::from("YOUR_APP_PASSWORD"),
+    ///     encrypt_password: None,
     /// };
     ///
     /// let nextcloud = NextcloudService::new(config)?;
@@ -44,6 +47,7 @@ impl NextcloudService {
             client: NextcloudClient::new(config.url)?,
             username: config.username,
             password: config.password,
+            encrypt_password: config.encrypt_password,
         })
     }
 }
@@ -62,6 +66,10 @@ impl Service for NextcloudService {
             .export_all(&self.username, &self.password)
             .await?;
 
-        Ok(vec![ExportItem::new("files", "tar.gz", temp_file)])
+        let (temp_file, format) = self
+            .maybe_encrypt(temp_file, "tar.gz", self.encrypt_password.as_deref())
+            .await?;
+
+        Ok(vec![ExportItem::new("files", format, temp_file)])
     }
 }

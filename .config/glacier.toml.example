@@ -15,11 +15,13 @@ secret_key = ""
 [outline]
 url = "https://outline.example.com"
 api_key = ""
+# encrypt_password = ""         # Custom encryption via glacier-crypto, set a value to enable encryption
 
 [nextcloud]
 url = "https://cloud.example.com"
 username = ""
 password = ""
+# encrypt_password = ""         # Custom encryption via glacier-crypto, set a value to enable encryption
 
 [bitwarden]
 format = "csv"
