@@ -1,3 +1,9 @@
+## [1.1.0] - 2026-07-30
+
+### Features
+
+- [`7eedc05`](https://git.lab.itsnova.sh/nova/glacier/commit/7eedc050387ac7cab70da6629ba42eb9a923b240) feat(cli): added configuration through toml files
+
 ## [1.0.0] - 2026-07-28
 
 ### Features
