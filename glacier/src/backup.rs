@@ -46,13 +46,13 @@ pub async fn backup(
 
         let export_items = service.export().await?;
 
-        let uploads = export_items.iter().flat_map(|item| {
-            let date = date.clone();
+        let mut uploads = Vec::with_capacity(export_items.len() * storages.len());
 
-            storages.iter().map(move |storage| {
+        for item in &export_items {
+            for storage in &storages {
                 let date = date.clone();
 
-                async move {
+                uploads.push(async move {
                     println!(
                         "Putting {} ({}) backup in {}...",
                         service.name(),
@@ -61,12 +61,12 @@ pub async fn backup(
                     );
 
                     let archive_descriptor =
-                        ArchiveDescriptor::new(&date, service.name(), &item.name, &item.extension);
+                        ArchiveDescriptor::new(date, service.name(), &item.name, &item.extension);
 
                     storage.upload(&archive_descriptor, item.file.path()).await
-                }
-            })
-        });
+                });
+            }
+        }
 
         futures::future::try_join_all(uploads).await?;
     }
