@@ -22,8 +22,8 @@ impl BitwardenClient {
     pub async fn login(&self, credentials: &BitwardenAuth) -> anyhow::Result<()> {
         let mut command = Command::new("bw");
 
-        command.env("BW_CLIENTID", credentials.client_id.clone());
-        command.env("BW_CLIENTSECRET", credentials.client_secret.clone());
+        command.env("BW_CLIENTID", &credentials.client_id);
+        command.env("BW_CLIENTSECRET", &credentials.client_secret);
 
         let output = command
             .arg("login")
@@ -31,7 +31,7 @@ impl BitwardenClient {
             .arg("--nointeraction")
             .output()
             .await?;
-        bail_on_err(&output)?;
+        let _ = bail_on_err(output)?;
 
         Ok(())
     }
@@ -56,9 +56,9 @@ impl BitwardenClient {
             .arg("--raw")
             .output()
             .await?;
-        bail_on_err(&output)?;
+        let stdout = bail_on_err(output)?;
 
-        let session = String::from_utf8(output.stdout)?.trim().to_owned();
+        let session = String::from_utf8(stdout)?.trim().to_owned();
 
         Ok(session)
     }
@@ -99,7 +99,7 @@ impl BitwardenClient {
         };
 
         let output = command.output().await?;
-        bail_on_err(&output)?;
+        let _ = bail_on_err(output)?;
 
         Ok(())
     }
@@ -120,19 +120,21 @@ impl BitwardenClient {
             .output()
             .await?;
 
-        bail_on_err(&output)?;
+        let _ = bail_on_err(output)?;
 
         Ok(())
     }
 }
 
-/// Returns an error if the output exited with a non-zero status.
-fn bail_on_err(output: &Output) -> anyhow::Result<()> {
+/// Returns an error if the output exited with a non-zero status, otherwise returns `stdout`.
+fn bail_on_err(output: Output) -> anyhow::Result<Vec<u8>> {
     if !output.status.success() {
-        anyhow::bail!(String::from_utf8(output.stderr.clone())?)
+        let message = String::from_utf8_lossy(&output.stderr);
+
+        anyhow::bail!(message.into_owned())
     }
 
-    Ok(())
+    Ok(output.stdout)
 }
 
 /// The serialization format for vault exports.
