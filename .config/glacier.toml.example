@@ -24,8 +24,8 @@ password = ""
 [bitwarden]
 format = "csv"
 master_password = ""
+# encrypt_password = ""         # Custom encryption via glacier-crypto, set a value to enable encryption
 
 [bitwarden.auth]
 client_id = ""
 client_secret = ""
-# encrypt_password = ""         # Custom encryption via glacier-crypto, set a value to enable encryption
