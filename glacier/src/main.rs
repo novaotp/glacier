@@ -1,5 +1,6 @@
 mod backup;
 mod cli;
+mod update;
 
 use clap::Parser;
 use cli::{GlacierCli, ServiceTarget, StorageTarget};
@@ -38,6 +39,7 @@ async fn main() -> anyhow::Result<()> {
         }
         GlacierCli::Encrypt(args) => encrypt_file(&args.input, &args.output, &args.password)?,
         GlacierCli::Decrypt(args) => decrypt_file(&args.input, &args.output, &args.password)?,
+        GlacierCli::Update => update::update()?,
     }
 
     Ok(())

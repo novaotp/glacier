@@ -21,5 +21,6 @@ dotenvy = "0.15.7"
 futures = "0.3.33"
 glacier-core.workspace = true
 glacier-crypto.workspace = true
+self_update = "0.44.0"
 strum = { version = "0.28.0", features = ["derive"] }
 tokio.workspace = true

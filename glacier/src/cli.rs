@@ -17,6 +17,8 @@ pub enum GlacierCli {
     Encrypt(EncryptArgs),
     /// Decrypts a file.
     Decrypt(DecryptArgs),
+    /// Updates the CLI.
+    Update,
 }
 
 #[derive(Args, Debug)]
