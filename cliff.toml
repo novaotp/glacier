@@ -14,9 +14,11 @@ body = """
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | striptags | trim | upper_first }}
     {% for commit in commits %}
-        - [`{{ commit.id | truncate(length=7, end="") }}`]({{ get_env(name="REPOSITORY_URL") }}/commit/{{ commit.id }}) {{ commit.raw_message }}\
+        {% set subject = commit.raw_message | split(pat="\n") | first -%}
+        - {{ subject | replace_regex(from="\\(#([0-9]+)\\)$", to="([#${1}](https://git.lab.itsnova.sh/nova/glacier/pulls/${1}))") }}{% if subject is not matching("\\(#[0-9]+\\)$") %} ([{{ commit.id | truncate(length=7, end="") }}](https://git.lab.itsnova.sh/nova/glacier/commit/{{ commit.id }})){% endif %}\
     {% endfor %}
 {% endfor %}
+
 """
 # Remove leading and trailing whitespaces from the changelog's body.
 trim = true
