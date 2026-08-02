@@ -1,7 +1,14 @@
 use self_update::{Status, backends::gitea};
+use tokio::task;
 
 /// Updates the CLI in place.
-pub fn update() -> anyhow::Result<()> {
+pub async fn update() -> anyhow::Result<()> {
+    task::spawn_blocking(update_sync).await??;
+
+    Ok(())
+}
+
+fn update_sync() -> anyhow::Result<()> {
     let status = gitea::Update::configure()
         .with_host("https://git.lab.itsnova.sh")
         .repo_owner("nova")

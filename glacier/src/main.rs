@@ -39,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
         }
         GlacierCli::Encrypt(args) => encrypt_file(&args.input, &args.output, &args.password)?,
         GlacierCli::Decrypt(args) => decrypt_file(&args.input, &args.output, &args.password)?,
-        GlacierCli::Update => update::update()?,
+        GlacierCli::Update => update::update().await?,
     }
 
     Ok(())
