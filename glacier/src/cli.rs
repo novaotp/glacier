@@ -79,6 +79,7 @@ pub struct BackupArgs {
 #[derive(Clone, Copy, Debug, EnumIter, Eq, PartialEq, Hash, ValueEnum)]
 pub enum ServiceTarget {
     Bitwarden,
+    Ente,
     Nextcloud,
     Outline,
 }

@@ -26,11 +26,12 @@ Glacier is a backup service for preserving data from the software I use every da
 
 ### Service Requirements
 
-| Service   | Comment                                                                                                                     |
-| --------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Bitwarden | The [Bitwarden CLI](https://bitwarden.com/help/cli/#download-and-install) (`bw`) must be installed and available in `PATH`. |
-| Nextcloud | None.                                                                                                                       |
-| Outline   | None.                                                                                                                       |
+| Service   | Comment                                                                                                                                                              |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bitwarden | The [Bitwarden CLI](https://bitwarden.com/help/cli/#download-and-install) (`bw`) must be installed and available in `PATH`.                                          |
+| Ente      | The [Ente CLI](https://github.com/ente/ente/releases) (`ente`) must be installed and available in `PATH`. An account of type `auth` must also be created before use. |
+| Nextcloud | None.                                                                                                                                                                |
+| Outline   | None.                                                                                                                                                                |
 
 ### Configuration
 

@@ -31,3 +31,7 @@ master_password = ""
 [bitwarden.auth]
 client_id = ""
 client_secret = ""
+
+[ente]
+export_path = ""
+# encrypt_password = ""         # Custom encryption via glacier-crypto, set a value to enable encryption

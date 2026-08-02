@@ -8,3 +8,6 @@
 
 # configuration
 .config/glacier.toml
+
+# ente auth
+ente_auth*.txt

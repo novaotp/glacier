@@ -16,6 +16,7 @@ config = "0.15.25"
 flate2 = "1.1.9"
 futures-util = "0.3.33"
 glacier-crypto.workspace = true
+glob = "0.3.4"
 quick-xml = { version = "0.41.0", features = ["serialize"] }
 reqwest = { version = "0.13.4", features = ["json", "query", "stream"] }
 serde = { version = "1.0.229", features = ["derive"] }

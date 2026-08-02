@@ -9,6 +9,7 @@ pub struct Config {
     pub outline: ConfigOutline,
     pub nextcloud: ConfigNextcloud,
     pub bitwarden: ConfigBitwarden,
+    pub ente: ConfigEnte,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -53,6 +54,12 @@ pub struct ConfigBitwarden {
 pub struct BitwardenAuth {
     pub client_id: String,
     pub client_secret: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct ConfigEnte {
+    pub export_path: String,
+    pub encrypt_password: Option<String>,
 }
 
 impl Config {

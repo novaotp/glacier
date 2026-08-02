@@ -2,7 +2,8 @@ use chrono::Local;
 use glacier_core::{
     config::Config,
     service::{
-        Service, bitwarden::BitwardenService, nextcloud::NextcloudService, outline::OutlineService,
+        Service, bitwarden::BitwardenService, ente::EnteService, nextcloud::NextcloudService,
+        outline::OutlineService,
     },
     storage::{ArchiveDescriptor, Storage, local::LocalStorage, s3::S3Storage},
 };
@@ -29,6 +30,10 @@ pub async fn backup(
     let mut services: Vec<Box<dyn Service>> = vec![];
     if service_targets.contains(&ServiceTarget::Bitwarden) {
         services.push(Box::new(BitwardenService::new(config.bitwarden)));
+    }
+
+    if service_targets.contains(&ServiceTarget::Ente) {
+        services.push(Box::new(EnteService::new(config.ente)));
     }
 
     if service_targets.contains(&ServiceTarget::Nextcloud) {
