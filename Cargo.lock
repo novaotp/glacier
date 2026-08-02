@@ -1487,7 +1487,7 @@ dependencies = [
 
 [[package]]
 name = "glacier"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1503,7 +1503,7 @@ dependencies = [
 
 [[package]]
 name = "glacier-core"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1526,7 +1526,7 @@ dependencies = [
 
 [[package]]
 name = "glacier-crypto"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "anyhow",
  "argon2",

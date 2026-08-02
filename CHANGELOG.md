@@ -1,3 +1,25 @@
+## [1.2.0] - 2026-08-02
+
+Glacier 1.2.0 focuses on quality-of-life improvements.
+
+The biggest addition is the new `update` command, which lets you update the `glacier` CLI in place without manually downloading and replacing the executable.
+
+This release also extends backup encryption to Nextcloud and Outline, bringing them in line with Bitwarden. Finally, it fixes the placement of `encrypted_password` in the TOML example configuration file.
+
+### Features
+
+- feat(glacier-core): added file encryption for nextcloud and outline ([#6](https://git.lab.itsnova.sh/nova/glacier/pulls/6))
+- feat(cli): added update command ([#8](https://git.lab.itsnova.sh/nova/glacier/pulls/8))
+
+### Bug Fixes
+
+- fix(config): fixed bitwarden's encrypt_password property position ([7d3a29e](https://git.lab.itsnova.sh/nova/glacier/commit/7d3a29e77f56e27d5081c1808e8f49443988b1d7))
+
+### Maintenance
+
+- perf(glacier-core): removed unnecessary clones ([4dafc98](https://git.lab.itsnova.sh/nova/glacier/commit/4dafc98d797beb98d1f4f7be970f486372a92851))
+- refactor(cli): simplified upload pipeline ([49a9e9e](https://git.lab.itsnova.sh/nova/glacier/commit/49a9e9e47cc4ad2dbe21b95f30c88b37966bcab8))
+
 ## [1.1.0] - 2026-07-30
 
 Glacier 1.1.0 adds an improved configuration system.
